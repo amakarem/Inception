@@ -4,7 +4,7 @@ RUN apt update && \
     apt install -y nginx openssl
 
 # Allow passing username at build time
-ARG USERNAME
+ARG USERNAME=aelaaser
 ENV USERNAME=${USERNAME}
 
 # Generate SSL cert with dynamic username
@@ -16,6 +16,6 @@ RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 COPY ./certs.sh /tmp/certs.sh
 RUN chmod +x /tmp/certs.sh
 
-COPY ./conf/default /etc/nginx/sites-available/default
+COPY ./conf/default.template /etc/nginx/sites-available/default.template
 
 ENTRYPOINT ["/tmp/certs.sh"]
