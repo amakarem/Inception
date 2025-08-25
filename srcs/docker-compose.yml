@@ -1,21 +1,15 @@
-version: "3.7"
-
-volumes:
-  mdb_data:
-      driver_opts:
-      type: 'none'
-      o: bind
-      device: ${HOME}/data/mysql
-  wp_data:
-      driver_opts:
-      type: 'none'
-      o: bind
-      device: ${HOME}/data/wordpress
-  shared_env:
-      driver_opts:
-      type: 'none'
-      o: bind
-      device: ${HOME}/data/shared_env
+# version: "3.7"
+# volumes:
+#   mdb_data:
+#     driver_opts:
+#       type: none
+#       o: bind
+#       device: /home/ahmed/data/mysql
+#   wp_data:
+#     driver_opts:
+#       type: none
+#       o: bind
+#       device: ${HOST_DATA_DIR}/wordpress
 
 networks:
   inception_net:
@@ -27,14 +21,43 @@ services:
     image: mariadb
     container_name: mariadb
     volumes:
-      - mdb_data:/var/lib/mysql
-      - shared_env:/run/secrets
+      - ${HOST_DATA_DIR}/mysql:/var/lib/mysql:rw
     env_file:
-      - ${HOME}/.env
+      - ../secrets/.env
     ports:
       - "3306:3306"
     networks:
       - inception_net
+    restart: on-failure
+
+  redis:
+    build: ./requirements/bonus/redis
+    image: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - inception_net
+    restart: on-failure
+
+  wordpress:
+    build: ./requirements/wordpress
+    image: wordpress
+    container_name: wordpress
+    depends_on:
+      - mariadb
+      - redis
+    volumes:
+      - ${HOST_DATA_DIR}/wordpress:/var/www/html
+    env_file:
+      - ../secrets/.env
+    networks:
+      - inception_net
+    expose:
+      - "9000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     restart: on-failure
 
   nginx:
@@ -49,38 +72,10 @@ services:
     depends_on:
       - wordpress
     volumes:
-      - wp_data:/var/www/html
+      - ${HOST_DATA_DIR}/wordpress:/var/www/html
     ports:
       - 443:443
     networks:
       - inception_net
     restart: on-failure
 
-redis:
-  image: redis:7-alpine
-  container_name: redis
-  ports:
-    - "6379:6379"        # expose port to host
-  networks:
-    - inception_net
-  restart: on-failure
-
-  wordpress:
-    build: ./requirements/wordpress
-    image: wordpress
-    container_name: wordpress
-    depends_on:
-      - mariadb
-    volumes:
-      - wp_data:/var/www/html
-      - shared_env:/run/secrets:ro
-    env_file:
-      - /run/secrets/.env
-    networks:
-      - inception_net
-    expose:
-      - "9000"
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-    restart: on-failure

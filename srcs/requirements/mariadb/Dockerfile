@@ -1,8 +1,13 @@
-FROM debian:buster
+FROM debian:bullseye
 
 # Install MariaDB non-interactively
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-server pwgen
+    apt-get install -y mariadb-server pwgen && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /var/lib/mysql && \
+    chown -R mysql:mysql /var/lib/mysql
 
 # Copy startup script
 COPY ./tools/script.sh /tmp/script.sh

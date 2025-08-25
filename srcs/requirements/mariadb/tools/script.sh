@@ -1,40 +1,33 @@
 #!/bin/bash
 
-# Load .env from shared volume if exists
-if [ -f "/run/secrets/.env" ]; then
-  export $(grep -v '^#' /run/secrets/.env | xargs)
-fi
+echo "Database: $database_name"
+echo "User: $mysql_user"
+echo "Password: $mysql_password"
 
-# Fallbacks
-database_name=${database_name:-mydb}
-mysql_user=${mysql_user:-user}
-mysql_password=${mysql_password:-$(pwgen -s 16 1)}
-mysql_root_user=${mysql_root_user:-root}
-mysql_root_password=${mysql_root_password:-$(pwgen -s 16 1)}
+set -e
 
-# Write .env back to shared volume if missing
-if [ ! -f "/run/secrets/.env" ]; then
-  cat <<EOF > /run/secrets/.env
-database_name=${database_name}
-mysql_user=${mysql_user}
-mysql_password=${mysql_password}
-mysql_root_user=${mysql_root_user}
-mysql_root_password=${mysql_root_password}
-EOF
-  echo ".env created in shared volume"
-fi
+echo "Starting MariaDB..."
 
-# Start MariaDB for initialization
-service mysql start
+# Start mariadb in the background
+mysqld_safe --datadir=/var/lib/mysql --skip-networking=0 --bind-address=0.0.0.0 &
 
-# Create DB and users
-mysql -e "CREATE DATABASE IF NOT EXISTS ${database_name};"
-mysql -e "CREATE USER '${mysql_user}'@'%' IDENTIFIED BY '${mysql_password}';"
-mysql -e "GRANT ALL PRIVILEGES ON ${database_name}.* TO '${mysql_user}'@'%';"
-mysql -e "ALTER USER '${mysql_root_user}'@'localhost' IDENTIFIED BY '${mysql_root_password}';"
-mysql -e "FLUSH PRIVILEGES;"
+# Wait until MariaDB is ready
+until mysql -u root -e "SELECT 1" &>/dev/null; do
+  echo "Waiting for MariaDB to be ready..."
+  sleep 2
+done
 
-# Stop temporary server
-mysqladmin -u${mysql_root_user} -p${mysql_root_password} shutdown
+echo "MariaDB is ready."
 
-exec "$@"
+# Now run setup
+mysql -u root <<-EOSQL
+    CREATE DATABASE IF NOT EXISTS ${database_name};
+    CREATE USER IF NOT EXISTS '${mysql_user}'@'%' IDENTIFIED BY '${mysql_password}';
+    GRANT ALL PRIVILEGES ON ${database_name}.* TO '${mysql_user}'@'%';
+    FLUSH PRIVILEGES;
+EOSQL
+
+echo "Database setup complete."
+
+# Keep foreground process (replace shell with mysqld_safe)
+wait -n

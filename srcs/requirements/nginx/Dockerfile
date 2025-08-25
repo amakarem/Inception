@@ -1,6 +1,9 @@
-FROM debian:buster
+FROM debian:bullseye
 
-RUN apt update && apt install -y nginx openssl
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update -y && \
+    apt-get install -y nginx openssl && \
+    rm -rf /var/lib/apt/lists/*
 
 # Allow passing username at build time
 ARG USERNAME=aelaaser

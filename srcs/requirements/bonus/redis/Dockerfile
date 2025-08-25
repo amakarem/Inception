@@ -1,8 +1,10 @@
-FROM debian:buster
+FROM debian:bullseye
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -y && \
-    apt-get install -y redis && \
-    apt-get install -y redis-server
+    apt-get install -y redis-server && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN sed -i 's/# bind 127.0.0.1/bind 0.0.0.0/g' /etc/redis/redis.conf
 RUN echo 'maxmemory 256mb' >> /etc/redis/redis.conf && \ 

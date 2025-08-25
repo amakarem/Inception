@@ -1,5 +1,5 @@
 #!/bin/bash
-ENV_FILE="$HOME/.env"
+ENV_FILE="./secrets/.env"
 
 if [ ! -f "$ENV_FILE" ]; then
   echo "Creating .env file with random credentials..."
