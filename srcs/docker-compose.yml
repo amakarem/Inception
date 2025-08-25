@@ -1,7 +1,12 @@
 version: "3.7"
 services:
   nginx:
-    build: ./services/nginx
+    build:
+      context: ./services/nginx
+      args:
+        USERNAME: ${USER}
+    environment:
+      - USERNAME=${USER}
     image: nginx
     container_name: nginx
     volumes:
@@ -10,8 +15,6 @@ services:
       - 443:443
     networks:
       - inception_net
-    depends_on:
-      - wordpress
     restart: on-failure
 
   mariadb:
