@@ -63,10 +63,8 @@ services:
   nginx:
     build:
       context: ./requirements/nginx
-      args:
-        USERNAME: ${USER}
-    environment:
-      - USERNAME=${USER}
+    env_file:
+      - ../secrets/.env
     image: nginx
     container_name: nginx
     depends_on:

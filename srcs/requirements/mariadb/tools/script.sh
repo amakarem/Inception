@@ -1,8 +1,8 @@
 #!/bin/bash
 
-echo "Database: $database_name"
-echo "User: $mysql_user"
-echo "Password: $mysql_password"
+# echo "Database: $database_name"
+# echo "User: $mysql_user"
+# echo "Password: $mysql_password"
 
 set -e
 
