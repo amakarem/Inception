@@ -1,5 +1,42 @@
 version: "3.7"
+
+volumes:
+  mdb_data:
+      driver_opts:
+      type: 'none'
+      o: bind
+      device: ${HOME}/data/mysql
+  wp_data:
+      driver_opts:
+      type: 'none'
+      o: bind
+      device: ${HOME}/data/wordpress
+  shared_env:
+      driver_opts:
+      type: 'none'
+      o: bind
+      device: ${HOME}/data/shared_env
+
+networks:
+  inception_net:
+    driver: bridge
+
 services:
+  mariadb:
+    build: ./services/mariadb
+    image: mariadb
+    container_name: mariadb
+    volumes:
+      - mdb_data:/var/lib/mysql
+      - shared_env:/run/secrets
+    env_file:
+      - ${HOME}/.env
+    ports:
+      - "3306:3306"
+    networks:
+      - inception_net
+    restart: on-failure
+
   nginx:
     build:
       context: ./services/nginx
@@ -9,35 +46,63 @@ services:
       - USERNAME=${USER}
     image: nginx
     container_name: nginx
+    depends_on:
+      - wordpress
     volumes:
-      - wp:/var/www/html
+      - wp_data:/var/www/html
     ports:
       - 443:443
     networks:
       - inception_net
     restart: on-failure
 
-  mariadb:
-    build: ./services/mariadb
-    image: mariadb
-    container_name: mariadb
+  wordpress:
+    build: ./services/wordpress
+    image: wordpress
+    container_name: wordpress
+    depends_on:
+      - mariadb
     volumes:
-      - mdb:/var/lib/mysql
-    expose:
-      - "3306"
-    env_file: # optional, will be auto-created if missing
-      - ${HOME}/.env
+      - wp_data:/var/www/html
+      - shared_env:/run/secrets:ro
+    env_file:
+      - /run/secrets/.env
     networks:
       - inception_net
+    expose:
+      - "9000"
     restart: on-failure
 
-volumes:
-  mdb:
-    driver_opts:
-      type: 'none'
-      o: bind
-      device: ${HOME}/data/mysql
+  ftp:
+    build: ./services/bonus/FTP
+    image: ftp
+    container_name: ftp
+    ports:
+      - "40000-40005:40000-40005"
+      - "21:21"
+      - "20:20"
+    networks:
+      - inception_net
+    volumes:
+      - wp:${HOME}/ftp
+    depends_on:
+      - wordpress
+    env_file:
+      - ${HOME}/Desktop/.env
+    restart: on-failure
 
-networks:
-  inception_net:
-    driver: bridge
+  node-js:
+    build: ./services/bonus/node
+    image: node-js
+    container_name: node-js
+    networks:
+      - inception_net
+    ports:
+      - "1337:1337"
+    depends_on:
+      - mariadb
+      - wordpress
+    env_file:
+      - ${HOME}/Desktop/.env
+    restart: on-failure
+
