@@ -12,7 +12,7 @@ RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -out /etc/ssl/certs/${USERNAME}.crt \
     -subj "/C=DE/ST=Heilbronn/L=Heilbronn/O=1337 School/OU=${USERNAME}/CN=${USERNAME}.42.fr"
 
-COPY ./certs.sh /tmp/certs.sh
+COPY ./tools/certs.sh /tmp/certs.sh
 RUN chmod +x /tmp/certs.sh
 
 COPY ./conf/default.template /etc/nginx/sites-available/default.template

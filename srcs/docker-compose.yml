@@ -23,7 +23,7 @@ networks:
 
 services:
   mariadb:
-    build: ./services/mariadb
+    build: ./requirements/mariadb
     image: mariadb
     container_name: mariadb
     volumes:
@@ -39,7 +39,7 @@ services:
 
   nginx:
     build:
-      context: ./services/nginx
+      context: ./requirements/nginx
       args:
         USERNAME: ${USER}
     environment:
@@ -56,8 +56,17 @@ services:
       - inception_net
     restart: on-failure
 
+redis:
+  image: redis:7-alpine
+  container_name: redis
+  ports:
+    - "6379:6379"        # expose port to host
+  networks:
+    - inception_net
+  restart: on-failure
+
   wordpress:
-    build: ./services/wordpress
+    build: ./requirements/wordpress
     image: wordpress
     container_name: wordpress
     depends_on:
@@ -71,38 +80,7 @@ services:
       - inception_net
     expose:
       - "9000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     restart: on-failure
-
-  ftp:
-    build: ./services/bonus/FTP
-    image: ftp
-    container_name: ftp
-    ports:
-      - "40000-40005:40000-40005"
-      - "21:21"
-      - "20:20"
-    networks:
-      - inception_net
-    volumes:
-      - wp:${HOME}/ftp
-    depends_on:
-      - wordpress
-    env_file:
-      - ${HOME}/Desktop/.env
-    restart: on-failure
-
-  node-js:
-    build: ./services/bonus/node
-    image: node-js
-    container_name: node-js
-    networks:
-      - inception_net
-    ports:
-      - "1337:1337"
-    depends_on:
-      - mariadb
-      - wordpress
-    env_file:
-      - ${HOME}/Desktop/.env
-    restart: on-failure
-
