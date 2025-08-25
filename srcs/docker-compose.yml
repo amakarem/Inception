@@ -17,6 +17,26 @@ services:
       - inception_net
     restart: on-failure
 
+  mariadb:
+    build: ./services/mariadb
+    image: mariadb
+    container_name: mariadb
+    volumes:
+      - mdb:/var/lib/mysql
+    expose:
+      - "3306"
+    env_file: # optional, will be auto-created if missing
+      - ${HOME}/.env
+    networks:
+      - inception_net
+    restart: on-failure
+
+volumes:
+  mdb:
+    driver_opts:
+      type: 'none'
+      o: bind
+      device: ${HOME}/data/mysql
 
 networks:
   inception_net:

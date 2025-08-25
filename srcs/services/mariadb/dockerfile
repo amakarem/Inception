@@ -1,0 +1,18 @@
+FROM debian:buster
+
+# Install MariaDB non-interactively
+RUN apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-server pwgen
+
+# Copy startup script
+COPY ./script.sh /tmp/script.sh
+RUN chmod +x /tmp/script.sh
+
+# Allow remote connections
+RUN sed -i "s/127.0.0.1/0.0.0.0/" /etc/mysql/mariadb.conf.d/50-server.cnf
+
+# Run the script as entrypoint
+ENTRYPOINT ["bash", "/tmp/script.sh"]
+
+# Default command (start mysqld safely)
+CMD ["mysqld_safe"]
