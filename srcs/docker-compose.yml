@@ -1,15 +1,15 @@
 # version: "3.7"
-# volumes:
-#   mdb_data:
-#     driver_opts:
-#       type: none
-#       o: bind
-#       device: /home/ahmed/data/mysql
-#   wp_data:
-#     driver_opts:
-#       type: none
-#       o: bind
-#       device: ${HOST_DATA_DIR}/wordpress
+volumes:
+  mdb_data:
+    # driver_opts:
+    #   type: none
+    #   o: bind
+    #   device: /home/ahmed/data/mysql
+  wp_data:
+    # driver_opts:
+    #   type: none
+    #   o: bind
+    #   device: ${HOST_DATA_DIR}/wordpress
 
 networks:
   inception_net:
@@ -21,7 +21,7 @@ services:
     image: mariadb
     container_name: mariadb
     volumes:
-      - ${HOST_DATA_DIR}/mysql:/var/lib/mysql:rw
+      - mdb_data:/var/lib/mysql
     env_file:
       - ../secrets/.env
     ports:
@@ -48,7 +48,7 @@ services:
       - mariadb
       - redis
     volumes:
-      - ${HOST_DATA_DIR}/wordpress:/var/www/html
+      - wp_data:/var/www/html
     env_file:
       - ../secrets/.env
     networks:
@@ -72,7 +72,7 @@ services:
     depends_on:
       - wordpress
     volumes:
-      - ${HOST_DATA_DIR}/wordpress:/var/www/html
+      - wp_data:/var/www/html
     ports:
       - 443:443
     networks:
