@@ -9,12 +9,6 @@ RUN apt-get update && \
     apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/*
 
-# Create working directory
-RUN mkdir -p /var/www/js
-
-# Set working directory
-WORKDIR /var/www/js
-
 # Copy Node.js project from ./site into container
 COPY site/package*.json ./
 

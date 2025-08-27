@@ -4,12 +4,17 @@ volumes:
     # driver_opts:
     #   type: none
     #   o: bind
-    #   device: /home/ahmed/data/mysql
+    #   device: ${HOST_DATA_DIR}/mysql
   wp_data:
     # driver_opts:
     #   type: none
     #   o: bind
     #   device: ${HOST_DATA_DIR}/wordpress
+  static_data:
+    # driver_opts:
+    #   type: none
+    #   o: bind
+    #   device: ${HOST_DATA_DIR}/js    
 
 networks:
   inception_net:
@@ -88,7 +93,7 @@ services:
     networks:
       - inception_net
     volumes:
-      - wp_data:/var/www
+      - wp_data:/var/www/html
     depends_on:
       - wordpress
     env_file:
@@ -98,9 +103,8 @@ services:
   nodejs:
     build: ./requirements/bonus/nodejs
     container_name: nodejs
-    working_dir: /var/www/js
     volumes:
-      - wp_data:/var/www
+      - static_data:/var/www/js
     ports:
       - "3000:3000"
     networks:

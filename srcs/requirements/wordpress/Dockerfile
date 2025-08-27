@@ -40,10 +40,10 @@ RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli
 RUN wp core download --allow-root
 
 # Copy custom script
-COPY ./tools/script.sh .
+COPY ./tools/script.sh /tmp/script.sh
 
 # Make script executable
-RUN chmod +x script.sh
+RUN chmod +x /tmp/script.sh
 
 # Set entrypoint
-ENTRYPOINT ["bash", "script.sh"]
+ENTRYPOINT ["bash", "/tmp/script.sh"]
