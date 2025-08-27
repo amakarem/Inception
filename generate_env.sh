@@ -11,6 +11,7 @@ if [ ! -f "$ENV_FILE" ]; then
   mysql_root_user=root
   mysql_root_password=$(pwgen -s 16 1)
   wordpress_admin_password=$(pwgen -s 16 1)
+  ftp_password=$(pwgen -s 10 1)
   cat <<EOF > "$ENV_FILE"
 database_name=$database_name
 mysql_user=$mysql_user
@@ -22,6 +23,8 @@ username=$mysql_user
 domain_name=$mysql_user.42.fr
 wordpress_admin_password=$wordpress_admin_password
 wordpress_admin_email=$mysql_user@42.fr
+FTP_USER=$mysql_user
+FTP_PASS=$ftp_password
 EOF
 fi
 

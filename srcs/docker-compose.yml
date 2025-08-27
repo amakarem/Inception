@@ -77,3 +77,33 @@ services:
       - inception_net
     restart: on-failure
 
+  ftp:
+    build: ./requirements/bonus/FTP
+    image: ftp
+    container_name: ftp
+    ports:
+      - "40000-40005:40000-40005"
+      - "21:21"
+      - "20:20"
+    networks:
+      - inception_net
+    volumes:
+      - wp_data:/var/www
+    depends_on:
+      - wordpress
+    env_file:
+      - ../secrets/.env
+    restart: on-failure
+
+  nodejs:
+    build: ./requirements/bonus/nodejs
+    container_name: nodejs
+    working_dir: /var/www/js
+    volumes:
+      - wp_data:/var/www
+    ports:
+      - "3000:3000"
+    networks:
+      - inception_net
+    restart: on-failure
+
