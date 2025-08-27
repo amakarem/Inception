@@ -21,6 +21,7 @@ mysql_root_password=$mysql_root_password
 mysql_host=mariadb
 username=$mysql_user
 domain_name=$mysql_user.42.fr
+wordpress_admin_username=$mysql_user
 wordpress_admin_password=$wordpress_admin_password
 wordpress_admin_email=$mysql_user@42.fr
 FTP_USER=$mysql_user
