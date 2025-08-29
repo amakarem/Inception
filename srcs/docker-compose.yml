@@ -1,20 +1,20 @@
 # version: "3.7"
 volumes:
   mdb_data:
-    # driver_opts:
-    #   type: none
-    #   o: bind
-    #   device: ${HOST_DATA_DIR}/mysql
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_DATA_DIR}/mysql
   wp_data:
-    # driver_opts:
-    #   type: none
-    #   o: bind
-    #   device: ${HOST_DATA_DIR}/wordpress
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_DATA_DIR}/wordpress
   static_data:
-    # driver_opts:
-    #   type: none
-    #   o: bind
-    #   device: ${HOST_DATA_DIR}/js    
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_DATA_DIR}/js    
 
 networks:
   inception_net:
