@@ -7,11 +7,11 @@ if [ ! -f "$ENV_FILE" ]; then
   echo "Creating .env file with random credentials..."
   database_name=mydb
   mysql_user=${USERNAME:-aelaaser}
-  mysql_password=$(pwgen -s 16 1)
+  mysql_password=$(< /dev/urandom tr -dc 'A-Za-z0-9!@#$%^&*()_+=' | head -c16)
   mysql_root_user=root
-  mysql_root_password=$(pwgen -s 16 1)
-  wordpress_admin_password=$(pwgen -s 16 1)
-  ftp_password=$(pwgen -s 10 1)
+  mysql_root_password=$(< /dev/urandom tr -dc 'A-Za-z0-9!@#$%^&*()_+=' | head -c16)
+  wordpress_admin_password=$(< /dev/urandom tr -dc 'A-Za-z0-9!@#$%^&*()_+=' | head -c12)
+  ftp_password=$(< /dev/urandom tr -dc 'A-Za-z0-9!@#$%^&*()_+=' | head -c10)
   cat <<EOF > "$ENV_FILE"
 database_name=$database_name
 mysql_user=$mysql_user
